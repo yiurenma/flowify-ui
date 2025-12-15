@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import logo from "@/assets/logo.png";
 import { ConfigProvider, Layout, Menu, MenuProps } from "antd";
 import {
+  DatabaseOutlined,
   FolderOpenOutlined,
   HomeOutlined,
   InfoCircleOutlined,
@@ -17,6 +18,11 @@ const menuItems: MenuItem[] = [
     key: "Home",
     label: <Link to="/">Home</Link>,
     icon: <HomeOutlined />,
+  },
+  {
+    key: "Repositories",
+    label: <Link to="/repositories">Repositories</Link>,
+    icon: <DatabaseOutlined />,
   },
   {
     key: "Workflows",

@@ -1,4 +1,9 @@
-import { WorkflowResponse } from '../src/api/types';
+import {
+    RepositoryCreateRequest,
+    RepositoryResponse,
+    RepositoryUpdateRequest,
+    WorkflowResponse,
+} from '../src/api/types';
 import { defineMock } from 'vite-plugin-mock-dev-server';
 import { Plugin } from '../src/utils/constant';
 import { Node, Edge } from '@xyflow/react';
@@ -126,6 +131,40 @@ const mockWorkflows: WorkflowResponse[] = [
     },
 ];
 
+// Mock repository data (for management UI)
+const mockRepositories: RepositoryResponse[] = [
+    {
+        id: 'repo-1',
+        name: 'flowify-api',
+        description: 'Backend services for Flowify',
+        visibility: 'public',
+        defaultBranch: 'main',
+        archived: false,
+        createdAt: '2024-03-01T08:00:00Z',
+        updatedAt: '2024-03-15T10:30:00Z',
+    },
+    {
+        id: 'repo-2',
+        name: 'flowify-ui',
+        description: 'Management UI for Flowify',
+        visibility: 'public',
+        defaultBranch: 'main',
+        archived: false,
+        createdAt: '2024-03-05T09:00:00Z',
+        updatedAt: '2024-03-14T16:45:00Z',
+    },
+    {
+        id: 'repo-3',
+        name: 'infra',
+        description: 'Infrastructure and deployment configs',
+        visibility: 'private',
+        defaultBranch: 'main',
+        archived: false,
+        createdAt: '2024-03-10T12:00:00Z',
+        updatedAt: '2024-03-13T14:20:00Z',
+    },
+];
+
 export default defineMock([
     {
         url: '/api/workflows',
@@ -213,6 +252,89 @@ export default defineMock([
             };
         },
         status: 200,
-    }
+    },
+    {
+        url: '/api/repositories',
+        method: 'GET',
+        body: {
+            repositories: mockRepositories,
+            total: mockRepositories.length,
+        },
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'GET',
+        body: (req) => {
+            const id = req.params.id;
+            const repo = mockRepositories.find(r => r.id === id);
+
+            if (!repo) {
+                return new Response(JSON.stringify({ message: 'Repository not found' }), {
+                    status: 404,
+                });
+            }
+
+            return repo;
+        },
+    },
+    {
+        url: '/api/repositories',
+        method: 'POST',
+        body: (req) => {
+            const repo = req.body as RepositoryCreateRequest;
+            const created: RepositoryResponse = {
+                id: `repo-${mockRepositories.length + 1}`,
+                name: repo.name,
+                description: repo.description,
+                visibility: repo.visibility,
+                defaultBranch: 'main',
+                archived: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+
+            mockRepositories.unshift(created);
+            return created;
+        },
+        status: 201,
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'PATCH',
+        body: (req) => {
+            const id = req.params.id;
+            const patch = req.body as RepositoryUpdateRequest;
+            const index = mockRepositories.findIndex(r => r.id === id);
+
+            if (index === -1) {
+                return new Response(JSON.stringify({ message: 'Repository not found' }), {
+                    status: 404,
+                });
+            }
+
+            const repo = mockRepositories[index];
+            mockRepositories[index] = {
+                ...repo,
+                ...patch,
+                updatedAt: new Date().toISOString(),
+            };
+
+            return mockRepositories[index];
+        },
+        status: 200,
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'DELETE',
+        body: (req) => {
+            const id = req.params.id;
+            const index = mockRepositories.findIndex(r => r.id === id);
+            if (index !== -1) {
+                mockRepositories.splice(index, 1);
+            }
+            return { message: 'Repository deleted successfully' };
+        },
+        status: 200,
+    },
 ]);
 

@@ -14,7 +14,9 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as WorkflowsIndexImport } from './routes/workflows/index'
+import { Route as RepositoriesIndexImport } from './routes/repositories/index'
 import { Route as WorkflowsWorkflowIdImport } from './routes/workflows/$workflowId'
+import { Route as RepositoriesRepoIdImport } from './routes/repositories/$repoId'
 
 // Create/Update Routes
 
@@ -36,9 +38,21 @@ const WorkflowsIndexRoute = WorkflowsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const RepositoriesIndexRoute = RepositoriesIndexImport.update({
+  id: '/repositories/',
+  path: '/repositories/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const WorkflowsWorkflowIdRoute = WorkflowsWorkflowIdImport.update({
   id: '/workflows/$workflowId',
   path: '/workflows/$workflowId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RepositoriesRepoIdRoute = RepositoriesRepoIdImport.update({
+  id: '/repositories/$repoId',
+  path: '/repositories/$repoId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,11 +74,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/repositories/$repoId': {
+      id: '/repositories/$repoId'
+      path: '/repositories/$repoId'
+      fullPath: '/repositories/$repoId'
+      preLoaderRoute: typeof RepositoriesRepoIdImport
+      parentRoute: typeof rootRoute
+    }
     '/workflows/$workflowId': {
       id: '/workflows/$workflowId'
       path: '/workflows/$workflowId'
       fullPath: '/workflows/$workflowId'
       preLoaderRoute: typeof WorkflowsWorkflowIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/repositories/': {
+      id: '/repositories/'
+      path: '/repositories'
+      fullPath: '/repositories'
+      preLoaderRoute: typeof RepositoriesIndexImport
       parentRoute: typeof rootRoute
     }
     '/workflows/': {
@@ -82,14 +110,18 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/repositories/$repoId': typeof RepositoriesRepoIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/repositories': typeof RepositoriesIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/repositories/$repoId': typeof RepositoriesRepoIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/repositories': typeof RepositoriesIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
@@ -97,30 +129,55 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/repositories/$repoId': typeof RepositoriesRepoIdRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/repositories/': typeof RepositoriesIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/repositories/$repoId'
+    | '/workflows/$workflowId'
+    | '/repositories'
+    | '/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
-  id: '__root__' | '/' | '/about' | '/workflows/$workflowId' | '/workflows/'
+  to:
+    | '/'
+    | '/about'
+    | '/repositories/$repoId'
+    | '/workflows/$workflowId'
+    | '/repositories'
+    | '/workflows'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/repositories/$repoId'
+    | '/workflows/$workflowId'
+    | '/repositories/'
+    | '/workflows/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  RepositoriesRepoIdRoute: typeof RepositoriesRepoIdRoute
   WorkflowsWorkflowIdRoute: typeof WorkflowsWorkflowIdRoute
+  RepositoriesIndexRoute: typeof RepositoriesIndexRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  RepositoriesRepoIdRoute: RepositoriesRepoIdRoute,
   WorkflowsWorkflowIdRoute: WorkflowsWorkflowIdRoute,
+  RepositoriesIndexRoute: RepositoriesIndexRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
 }
 
@@ -136,7 +193,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
+        "/repositories/$repoId",
         "/workflows/$workflowId",
+        "/repositories/",
         "/workflows/"
       ]
     },
@@ -146,8 +205,14 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.tsx"
     },
+    "/repositories/$repoId": {
+      "filePath": "repositories/$repoId.tsx"
+    },
     "/workflows/$workflowId": {
       "filePath": "workflows/$workflowId.tsx"
+    },
+    "/repositories/": {
+      "filePath": "repositories/index.tsx"
     },
     "/workflows/": {
       "filePath": "workflows/index.tsx"
