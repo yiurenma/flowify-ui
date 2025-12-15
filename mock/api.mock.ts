@@ -1,7 +1,16 @@
 import { WorkflowResponse } from '../src/api/types';
 import { defineMock } from 'vite-plugin-mock-dev-server';
-import { Plugin } from '../src/utils/constant';
 import { Node, Edge } from '@xyflow/react';
+import type { User, UserRequest, DashboardStats, SystemSettings, ActivityLog } from '../src/api/types/admin';
+
+// Plugin enum values (avoid importing React components)
+enum Plugin {
+  START = "Start",
+  CONSUMER = "Consumer",
+  MESSAGE = "Message",
+  IF_ELSE = "If-Else",
+  FUNCTION = "Function_V2",
+}
 
 /**
  * Creates a default start node for new workflows
@@ -90,6 +99,102 @@ const mockEdges: Record<string, Edge[]> = {
             targetHandle: "target-handle"
         }
     ]
+};
+
+// Mock admin data
+const mockUsers: User[] = [
+    {
+        id: "1",
+        username: "admin",
+        email: "admin@flowify.com",
+        role: "admin",
+        status: "active",
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-03-15T10:00:00Z",
+        lastLoginAt: "2024-03-15T08:30:00Z",
+    },
+    {
+        id: "2",
+        username: "john.doe",
+        email: "john.doe@flowify.com",
+        role: "user",
+        status: "active",
+        createdAt: "2024-01-15T00:00:00Z",
+        updatedAt: "2024-03-14T15:00:00Z",
+        lastLoginAt: "2024-03-14T14:20:00Z",
+    },
+    {
+        id: "3",
+        username: "jane.smith",
+        email: "jane.smith@flowify.com",
+        role: "user",
+        status: "active",
+        createdAt: "2024-02-01T00:00:00Z",
+        updatedAt: "2024-03-13T09:00:00Z",
+        lastLoginAt: "2024-03-13T08:45:00Z",
+    },
+    {
+        id: "4",
+        username: "viewer1",
+        email: "viewer1@flowify.com",
+        role: "viewer",
+        status: "active",
+        createdAt: "2024-02-15T00:00:00Z",
+        updatedAt: "2024-03-12T12:00:00Z",
+        lastLoginAt: "2024-03-12T11:30:00Z",
+    },
+];
+
+const mockActivityLogs: ActivityLog[] = [
+    {
+        id: "1",
+        userId: "2",
+        username: "john.doe",
+        action: "created",
+        resource: "workflow",
+        timestamp: "2024-03-15T10:30:00Z",
+    },
+    {
+        id: "2",
+        userId: "1",
+        username: "admin",
+        action: "updated",
+        resource: "user",
+        timestamp: "2024-03-15T09:15:00Z",
+    },
+    {
+        id: "3",
+        userId: "3",
+        username: "jane.smith",
+        action: "published",
+        resource: "workflow",
+        timestamp: "2024-03-14T16:45:00Z",
+    },
+    {
+        id: "4",
+        userId: "2",
+        username: "john.doe",
+        action: "deleted",
+        resource: "workflow",
+        timestamp: "2024-03-14T14:20:00Z",
+    },
+    {
+        id: "5",
+        userId: "1",
+        username: "admin",
+        action: "created",
+        resource: "user",
+        timestamp: "2024-03-13T10:00:00Z",
+    },
+];
+
+const mockSettings: SystemSettings = {
+    siteName: "Flowify.API",
+    siteDescription: "Workflow automation platform",
+    maintenanceMode: false,
+    maxUsers: 100,
+    allowRegistration: true,
+    sessionTimeout: 30,
 };
 
 // Mock workflow data with proper typing
@@ -213,6 +318,120 @@ export default defineMock([
             };
         },
         status: 200,
-    }
+    },
+    // Admin API mocks
+    {
+        url: '/api/admin/users',
+        method: 'GET',
+        body: {
+            users: mockUsers,
+            total: mockUsers.length,
+        },
+    },
+    {
+        url: '/api/admin/users/:id',
+        method: 'GET',
+        body: (req) => {
+            const id = req.params.id;
+            const user = mockUsers.find(u => u.id === id);
+            if (!user) {
+                return new Response(JSON.stringify({
+                    message: "User not found"
+                }), {
+                    status: 404
+                });
+            }
+            return user;
+        },
+    },
+    {
+        url: '/api/admin/users',
+        method: 'POST',
+        body: (req) => {
+            const userData = req.body as UserRequest;
+            const newUser: User = {
+                id: (mockUsers.length + 1).toString(),
+                username: userData.username,
+                email: userData.email,
+                role: userData.role,
+                status: userData.status || 'active',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            };
+            mockUsers.push(newUser);
+            return newUser;
+        },
+        status: 201,
+    },
+    {
+        url: '/api/admin/users/:id',
+        method: 'PATCH',
+        body: (req) => {
+            const id = req.params.id;
+            const updatedData = req.body as Partial<UserRequest>;
+            const index = mockUsers.findIndex(u => u.id === id);
+            if (index === -1) {
+                return new Response(JSON.stringify({
+                    message: "User not found"
+                }), {
+                    status: 404
+                });
+            }
+            const user = mockUsers[index];
+            if (updatedData.username) user.username = updatedData.username;
+            if (updatedData.email) user.email = updatedData.email;
+            if (updatedData.role) user.role = updatedData.role;
+            if (updatedData.status) user.status = updatedData.status;
+            user.updatedAt = new Date().toISOString();
+            return user;
+        },
+        status: 200,
+    },
+    {
+        url: '/api/admin/users/:id',
+        method: 'DELETE',
+        body: (req) => {
+            const id = req.params.id;
+            const index = mockUsers.findIndex(u => u.id === id);
+            if (index !== -1) {
+                mockUsers.splice(index, 1);
+            }
+            return {
+                message: "User deleted successfully"
+            };
+        },
+        status: 200,
+    },
+    {
+        url: '/api/admin/dashboard/stats',
+        method: 'GET',
+        body: (): DashboardStats => {
+            const activeUsers = mockUsers.filter(u => u.status === 'active').length;
+            const publishedWorkflows = mockWorkflows.filter(w => w.status === 'published').length;
+            return {
+                totalUsers: mockUsers.length,
+                activeUsers,
+                totalWorkflows: mockWorkflows.length,
+                publishedWorkflows,
+                systemHealth: 'healthy',
+                recentActivity: mockActivityLogs.slice(0, 10),
+            };
+        },
+    },
+    {
+        url: '/api/admin/settings',
+        method: 'GET',
+        body: mockSettings,
+    },
+    {
+        url: '/api/admin/settings',
+        method: 'PATCH',
+        body: (req) => {
+            const updatedData = req.body as Partial<SystemSettings>;
+            Object.assign(mockSettings, updatedData);
+            return mockSettings;
+        },
+        status: 200,
+    },
 ]);
 

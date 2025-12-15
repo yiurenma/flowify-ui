@@ -9,7 +9,7 @@ import { createQueryKey } from '../config';
 
 const WORKFLOW_KEYS = {
     all: () => createQueryKey('workflows'),
-    list: (params?: Record<string, unknown>) => createQueryKey('workflows', params),
+    list: (params?: Record<string, unknown>) => params ? createQueryKey('workflows', params) : createQueryKey('workflows'),
     detail: (id: string) => createQueryKey('workflow', { id }),
 };
 

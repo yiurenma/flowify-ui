@@ -14,7 +14,11 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as WorkflowsIndexImport } from './routes/workflows/index'
+import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as WorkflowsWorkflowIdImport } from './routes/workflows/$workflowId'
+import { Route as AdminUsersImport } from './routes/admin/users'
+import { Route as AdminSettingsImport } from './routes/admin/settings'
+import { Route as AdminDashboardImport } from './routes/admin/dashboard'
 
 // Create/Update Routes
 
@@ -36,9 +40,33 @@ const WorkflowsIndexRoute = WorkflowsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminIndexRoute = AdminIndexImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const WorkflowsWorkflowIdRoute = WorkflowsWorkflowIdImport.update({
   id: '/workflows/$workflowId',
   path: '/workflows/$workflowId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminUsersRoute = AdminUsersImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminSettingsRoute = AdminSettingsImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminDashboardRoute = AdminDashboardImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,11 +88,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersImport
+      parentRoute: typeof rootRoute
+    }
     '/workflows/$workflowId': {
       id: '/workflows/$workflowId'
       path: '/workflows/$workflowId'
       fullPath: '/workflows/$workflowId'
       preLoaderRoute: typeof WorkflowsWorkflowIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexImport
       parentRoute: typeof rootRoute
     }
     '/workflows/': {
@@ -82,14 +138,22 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/admin': typeof AdminIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/admin': typeof AdminIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
@@ -97,30 +161,67 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/admin/dashboard'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/workflows/$workflowId'
+    | '/admin'
+    | '/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
-  id: '__root__' | '/' | '/about' | '/workflows/$workflowId' | '/workflows/'
+  to:
+    | '/'
+    | '/about'
+    | '/admin/dashboard'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/workflows/$workflowId'
+    | '/admin'
+    | '/workflows'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/admin/dashboard'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/workflows/$workflowId'
+    | '/admin/'
+    | '/workflows/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   WorkflowsWorkflowIdRoute: typeof WorkflowsWorkflowIdRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminUsersRoute: AdminUsersRoute,
   WorkflowsWorkflowIdRoute: WorkflowsWorkflowIdRoute,
+  AdminIndexRoute: AdminIndexRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
 }
 
@@ -136,7 +237,11 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
+        "/admin/dashboard",
+        "/admin/settings",
+        "/admin/users",
         "/workflows/$workflowId",
+        "/admin/",
         "/workflows/"
       ]
     },
@@ -146,8 +251,20 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.tsx"
     },
+    "/admin/dashboard": {
+      "filePath": "admin/dashboard.tsx"
+    },
+    "/admin/settings": {
+      "filePath": "admin/settings.tsx"
+    },
+    "/admin/users": {
+      "filePath": "admin/users.tsx"
+    },
     "/workflows/$workflowId": {
       "filePath": "workflows/$workflowId.tsx"
+    },
+    "/admin/": {
+      "filePath": "admin/index.tsx"
     },
     "/workflows/": {
       "filePath": "workflows/index.tsx"

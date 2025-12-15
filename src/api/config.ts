@@ -29,6 +29,6 @@ export const handleApiError = async (response: Response): Promise<never> => {
     );
 };
 
-export const createQueryKey = (base: string, params?: Record<string, unknown>) => {
-    return params ? [base, params] : [base];
+export const createQueryKey = (...args: (string | Record<string, unknown>)[]) => {
+    return args.filter(Boolean);
 }; 
