@@ -1,4 +1,4 @@
-import { WorkflowResponse } from '../src/api/types';
+import { WorkflowResponse, RepositoryResponse } from '../src/api/types';
 import { defineMock } from 'vite-plugin-mock-dev-server';
 import { Plugin } from '../src/utils/constant';
 import { Node, Edge } from '@xyflow/react';
@@ -126,6 +126,112 @@ const mockWorkflows: WorkflowResponse[] = [
     },
 ];
 
+// Mock repository data
+const mockRepositories: RepositoryResponse[] = [
+    {
+        id: "repo-1",
+        name: "flowify-ui",
+        description: "Modern workflow management system built with React and TypeScript",
+        url: "https://github.com/hsbc/flowify-ui",
+        visibility: "public",
+        status: "active",
+        language: "TypeScript",
+        stars: 342,
+        forks: 87,
+        createdAt: "2024-01-15T08:00:00Z",
+        updatedAt: "2024-03-15T10:30:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+    {
+        id: "repo-2",
+        name: "api-gateway",
+        description: "High-performance API gateway for microservices architecture with rate limiting and authentication",
+        url: "https://github.com/hsbc/api-gateway",
+        visibility: "private",
+        status: "active",
+        language: "Go",
+        stars: 156,
+        forks: 34,
+        createdAt: "2024-02-01T09:00:00Z",
+        updatedAt: "2024-03-14T16:45:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+    {
+        id: "repo-3",
+        name: "data-pipeline",
+        description: "ETL pipeline for processing and transforming large-scale financial data",
+        url: "https://github.com/hsbc/data-pipeline",
+        visibility: "private",
+        status: "active",
+        language: "Python",
+        stars: 89,
+        forks: 23,
+        createdAt: "2024-01-20T10:00:00Z",
+        updatedAt: "2024-03-13T14:20:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+    {
+        id: "repo-4",
+        name: "mobile-banking-app",
+        description: "Cross-platform mobile banking application with real-time transaction monitoring",
+        url: "https://github.com/hsbc/mobile-banking-app",
+        visibility: "private",
+        status: "active",
+        language: "JavaScript",
+        stars: 234,
+        forks: 56,
+        createdAt: "2023-11-10T08:00:00Z",
+        updatedAt: "2024-03-12T09:15:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+    {
+        id: "repo-5",
+        name: "legacy-system",
+        description: "Legacy banking system - deprecated and archived",
+        url: "https://github.com/hsbc/legacy-system",
+        visibility: "private",
+        status: "archived",
+        language: "Java",
+        stars: 45,
+        forks: 12,
+        createdAt: "2020-05-10T08:00:00Z",
+        updatedAt: "2023-06-15T10:00:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+    {
+        id: "repo-6",
+        name: "fraud-detection",
+        description: "ML-powered fraud detection system using advanced algorithms",
+        url: "https://github.com/hsbc/fraud-detection",
+        visibility: "private",
+        status: "maintenance",
+        language: "Python",
+        stars: 178,
+        forks: 45,
+        createdAt: "2023-08-20T10:00:00Z",
+        updatedAt: "2024-03-10T11:30:00Z",
+        owner: {
+            name: "HSBC Team",
+            avatar: undefined,
+        }
+    },
+];
+
 export default defineMock([
     {
         url: '/api/workflows',
@@ -210,6 +316,95 @@ export default defineMock([
             mockWorkflows.splice(index, 1);
             return {
                 message: "Workflow deleted successfully"
+            };
+        },
+        status: 200,
+    },
+    // Repository endpoints
+    {
+        url: '/api/repositories',
+        method: 'GET',
+        body: {
+            repositories: mockRepositories,
+            total: mockRepositories.length,
+        },
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'GET',
+        body: (req) => {
+            const id = req.params.id;
+            const repository = mockRepositories.find(r => r.id === id);
+
+            if (!repository) {
+                return new Response(JSON.stringify({
+                    message: "Repository not found"
+                }), {
+                    status: 404
+                });
+            }
+
+            return repository;
+        },
+    },
+    {
+        url: '/api/repositories',
+        method: 'POST',
+        body: (req) => {
+            const repository = req.body as RepositoryResponse;
+            repository.id = `repo-${mockRepositories.length + 1}`;
+            repository.createdAt = new Date().toISOString();
+            repository.updatedAt = new Date().toISOString();
+            repository.url = `https://github.com/hsbc/${repository.name}`;
+            repository.stars = 0;
+            repository.forks = 0;
+            repository.status = "active";
+            repository.owner = {
+                name: "HSBC Team",
+                avatar: undefined,
+            };
+
+            mockRepositories.push(repository);
+            return repository;
+        },
+        status: 201,
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'PATCH',
+        body: (req) => {
+            const id = req.params.id;
+            const updatedRepository = req.body as Partial<RepositoryResponse>;
+            const index = mockRepositories.findIndex(r => r.id === id);
+
+            if (index === -1) {
+                return new Response(JSON.stringify({
+                    message: "Repository not found"
+                }), {
+                    status: 404
+                });
+            }
+
+            const repository = mockRepositories[index];
+            repository.name = updatedRepository.name || repository.name;
+            repository.description = updatedRepository.description ?? repository.description;
+            repository.visibility = updatedRepository.visibility || repository.visibility;
+            repository.language = updatedRepository.language ?? repository.language;
+            repository.updatedAt = new Date().toISOString();
+
+            return repository;
+        },
+        status: 200,
+    },
+    {
+        url: '/api/repositories/:id',
+        method: 'DELETE',
+        body: (req) => {
+            const id = req.params.id;
+            const index = mockRepositories.findIndex(r => r.id === id);
+            mockRepositories.splice(index, 1);
+            return {
+                message: "Repository deleted successfully"
             };
         },
         status: 200,

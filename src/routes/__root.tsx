@@ -6,6 +6,7 @@ import {
   FolderOpenOutlined,
   HomeOutlined,
   InfoCircleOutlined,
+  GithubOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
@@ -22,6 +23,11 @@ const menuItems: MenuItem[] = [
     key: "Workflows",
     label: <Link to="/workflows">Workflows</Link>,
     icon: <FolderOpenOutlined />,
+  },
+  {
+    key: "Repositories",
+    label: <Link to="/repositories">Repositories</Link>,
+    icon: <GithubOutlined />,
   },
   {
     key: "About",
