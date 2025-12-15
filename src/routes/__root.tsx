@@ -4,6 +4,7 @@ import logo from "@/assets/logo.png";
 import { ConfigProvider, Layout, Menu, MenuProps } from "antd";
 import {
   FolderOpenOutlined,
+  GithubOutlined,
   HomeOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
@@ -22,6 +23,11 @@ const menuItems: MenuItem[] = [
     key: "Workflows",
     label: <Link to="/workflows">Workflows</Link>,
     icon: <FolderOpenOutlined />,
+  },
+  {
+    key: "Repositories",
+    label: <Link to="/repositories">Repositories</Link>,
+    icon: <GithubOutlined />,
   },
   {
     key: "About",
