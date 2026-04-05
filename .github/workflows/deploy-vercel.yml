@@ -1,0 +1,29 @@
+# Pushes to `main` trigger a production deployment on Vercel (remote build).
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN       — https://vercel.com/account/tokens
+#   VERCEL_ORG_ID      — Vercel dashboard → Project → Settings → General
+#   VERCEL_PROJECT_ID  — same section
+#
+# If the project is also connected to GitHub in Vercel, disable automatic
+# Git deployments there to avoid duplicate production builds, or remove this workflow.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Deploy production
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes

@@ -6,7 +6,7 @@ const mockRows: WorkflowEntitySettingRow[] = [
     id: 1,
     applicationName: 'DEMO_APP',
     enabled: true,
-    lastModifiedDate: new Date().toISOString(),
+    lastModifiedDateTime: new Date().toISOString(),
   },
 ];
 

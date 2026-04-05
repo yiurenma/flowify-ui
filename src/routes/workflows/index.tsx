@@ -39,7 +39,7 @@ const ApplicationList = () => {
     () => ({
       page,
       size: pageSize,
-      sort: "lastModifiedDate,desc",
+      sort: "lastModifiedDateTime,desc",
       ...(debounced.trim() ? { applicationName: debounced.trim() } : {}),
     }),
     [page, debounced]
@@ -72,8 +72,8 @@ const ApplicationList = () => {
     },
     {
       title: "Last updated",
-      dataIndex: "lastModifiedDate",
-      key: "lastModifiedDate",
+      dataIndex: "lastModifiedDateTime",
+      key: "lastModifiedDateTime",
       width: 220,
       render: (v: string) => v ?? "—",
     },

@@ -21,7 +21,10 @@ export interface WorkflowEntitySettingRow {
   region?: string;
   eimId?: string;
   createdDate?: string;
+  /** Auditing field name from workflow-operation-api (Jackson) */
+  createdDateTime?: string;
   lastModifiedDate?: string;
+  lastModifiedDateTime?: string;
   createdBy?: string;
   lastModifiedBy?: string;
 }
