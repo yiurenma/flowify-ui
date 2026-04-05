@@ -14,7 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as WorkflowsIndexImport } from './routes/workflows/index'
-import { Route as WorkflowsWorkflowIdImport } from './routes/workflows/$workflowId'
+import { Route as WorkflowsApplicationNameImport } from './routes/workflows/$applicationName'
 
 // Create/Update Routes
 
@@ -36,9 +36,9 @@ const WorkflowsIndexRoute = WorkflowsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const WorkflowsWorkflowIdRoute = WorkflowsWorkflowIdImport.update({
-  id: '/workflows/$workflowId',
-  path: '/workflows/$workflowId',
+const WorkflowsApplicationNameRoute = WorkflowsApplicationNameImport.update({
+  id: '/workflows/$applicationName',
+  path: '/workflows/$applicationName',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,11 +60,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/workflows/$workflowId': {
-      id: '/workflows/$workflowId'
-      path: '/workflows/$workflowId'
-      fullPath: '/workflows/$workflowId'
-      preLoaderRoute: typeof WorkflowsWorkflowIdImport
+    '/workflows/$applicationName': {
+      id: '/workflows/$applicationName'
+      path: '/workflows/$applicationName'
+      fullPath: '/workflows/$applicationName'
+      preLoaderRoute: typeof WorkflowsApplicationNameImport
       parentRoute: typeof rootRoute
     }
     '/workflows/': {
@@ -82,14 +82,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/$applicationName': typeof WorkflowsApplicationNameRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/$applicationName': typeof WorkflowsApplicationNameRoute
   '/workflows': typeof WorkflowsIndexRoute
 }
 
@@ -97,30 +97,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/workflows/$workflowId': typeof WorkflowsWorkflowIdRoute
+  '/workflows/$applicationName': typeof WorkflowsApplicationNameRoute
   '/workflows/': typeof WorkflowsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
+  fullPaths: '/' | '/about' | '/workflows/$applicationName' | '/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/workflows/$workflowId' | '/workflows'
-  id: '__root__' | '/' | '/about' | '/workflows/$workflowId' | '/workflows/'
+  to: '/' | '/about' | '/workflows/$applicationName' | '/workflows'
+  id: '__root__' | '/' | '/about' | '/workflows/$applicationName' | '/workflows/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  WorkflowsWorkflowIdRoute: typeof WorkflowsWorkflowIdRoute
+  WorkflowsApplicationNameRoute: typeof WorkflowsApplicationNameRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  WorkflowsWorkflowIdRoute: WorkflowsWorkflowIdRoute,
+  WorkflowsApplicationNameRoute: WorkflowsApplicationNameRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
 }
 
@@ -136,7 +136,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
-        "/workflows/$workflowId",
+        "/workflows/$applicationName",
         "/workflows/"
       ]
     },
@@ -146,8 +146,8 @@ export const routeTree = rootRoute
     "/about": {
       "filePath": "about.tsx"
     },
-    "/workflows/$workflowId": {
-      "filePath": "workflows/$workflowId.tsx"
+    "/workflows/$applicationName": {
+      "filePath": "workflows/$applicationName.tsx"
     },
     "/workflows/": {
       "filePath": "workflows/index.tsx"

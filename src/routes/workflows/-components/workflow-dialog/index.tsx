@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useId } from "react";
 import { Form, Input, Modal } from "antd";
-import { WorkflowRequest, WorkflowResponse } from "@/api/types";
+import type { ApplicationFormValues } from "@/api/types";
 
 type WorkflowDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (formData: WorkflowRequest) => void;
+  onSubmit: (formData: ApplicationFormValues) => void;
   mode: "create" | "edit";
-  workflow?: WorkflowResponse | null;
+  initialApplicationName?: string | null;
 };
 
 export const WorkflowDialog: React.FC<WorkflowDialogProps> = ({
@@ -15,37 +15,23 @@ export const WorkflowDialog: React.FC<WorkflowDialogProps> = ({
   onClose,
   onSubmit,
   mode,
-  workflow,
+  initialApplicationName,
 }) => {
   const formId = useId();
   const [form] = Form.useForm();
   const isEdit = mode === "edit";
 
-  // 重置表单
   const resetForm = useCallback(() => {
-    if (isEdit && workflow) {
-      form.setFieldsValue({
-        name: workflow.name,
-        description: workflow.description,
-      });
+    if (isEdit && initialApplicationName) {
+      form.setFieldsValue({ applicationName: initialApplicationName });
     } else {
       form.resetFields();
     }
-  }, [form, isEdit, workflow]);
-
+  }, [form, isEdit, initialApplicationName]);
 
   useEffect(() => {
-    if (workflow) {
-      resetForm();
-    }
-  }, [workflow, resetForm]);
-
- 
-  useEffect(() => {
-    if (isOpen) {
-      resetForm();
-    }
-  }, [isOpen,resetForm]);
+    if (isOpen) resetForm();
+  }, [isOpen, resetForm]);
 
   const handleSubmit = async () => {
     try {
@@ -59,10 +45,10 @@ export const WorkflowDialog: React.FC<WorkflowDialogProps> = ({
   return (
     <Modal
       open={isOpen}
-      title={isEdit ? "Edit Workflow" : "New Workflow"}
+      title={isEdit ? "Application name" : "Create application"}
       onOk={handleSubmit}
       onCancel={onClose}
-      okText={isEdit ? "Update" : "Create"}
+      okText={isEdit ? "OK" : "Create"}
       cancelText="Cancel"
       destroyOnClose={false}
       afterClose={resetForm}
@@ -73,25 +59,23 @@ export const WorkflowDialog: React.FC<WorkflowDialogProps> = ({
         name={formId}
         preserve={false}
         initialValues={
-          isEdit && workflow
-            ? {
-                name: workflow.name,
-                description: workflow.description,
-              }
+          isEdit && initialApplicationName
+            ? { applicationName: initialApplicationName }
             : undefined
         }
       >
         <Form.Item
-          name="name"
-          label="Workflow Name"
+          name="applicationName"
+          label="Application name"
           rules={[
-            { required: true, message: "Please input the Workflow Name!" },
+            { required: true, message: "Please enter an application name" },
+            {
+              pattern: /^[A-Za-z0-9_.-]+$/,
+              message: "Use letters, numbers, dot, underscore, hyphen",
+            },
           ]}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item name="description" label="Description">
-          <Input.TextArea rows={4} />
+          <Input disabled={isEdit} placeholder="e.g. MY_APP" />
         </Form.Item>
       </Form>
     </Modal>

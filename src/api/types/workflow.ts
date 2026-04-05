@@ -1,70 +1,30 @@
 import { Node, Edge } from '@xyflow/react';
 import React from 'react';
 
-/**
- * Possible workflow types
- */
 export type WorkflowType = 'Message';
 
-/**
- * Workflow publication status
- */
 export type WorkflowStatus = 'draft' | 'published';
 
-/**
- * Form data properties that can be stored on a node
- * More specific than 'any' to maintain type safety while allowing flexibility
- */
 export type NodeFormData = {
-    label: string;
-    icon?: React.ReactNode;
-    // Additional properties with type safety
-    [key: string]: string | number | boolean | React.ReactNode | undefined;
+  label: string;
+  icon?: React.ReactNode;
+  backendPlugin?: import('./operation').BackendPlugin;
+  [key: string]: string | number | boolean | React.ReactNode | import('./operation').BackendPlugin | undefined;
 };
 
-/**
- * Custom data properties for workflow nodes
- * @extends Node from React Flow
- */
 export interface WorkflowNode extends Node {
-    data: NodeFormData;
+  data: NodeFormData;
 }
 
-/**
- * Custom properties for workflow edges
- * We use the standard Edge type from React Flow
- * This type alias helps with code readability and future extensions
- */
 export type WorkflowEdge = Edge;
 
-/**
- * API response structure for workflow data
- */
-export interface WorkflowResponse {
-    id: string;
-    name: string;
-    description?: string;
-    createdAt: string;
-    updatedAt: string;
-    status: WorkflowStatus;
-    nodes: Node[];
-    edges: Edge[];
+/** Create / rename dialog payload */
+export interface ApplicationFormValues {
+  applicationName: string;
 }
 
-/**
- * API request structure for creating or updating a workflow
- */
-export interface WorkflowRequest {
-    name: string;
-    description?: string;
-    nodes: Node[];
-    edges: Edge[];
+/** Editor state: full workflow from server + canvas sync */
+export interface WorkflowEditorModel {
+  applicationName: string;
+  workFlow: import('./operation').WorkFlow;
 }
-
-/**
- * API response structure for listing workflows
- */
-export interface WorkflowListResponse {
-    workflows: WorkflowResponse[];
-    total: number;
-} 

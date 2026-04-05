@@ -30,7 +30,7 @@ export const WorkflowSider: React.FC<WorkflowSiderProps> = ({
       trigger={null}
       collapsedWidth={48}
       theme={"light"}
-      onCollapse={(value) => setCollapsed(value)}
+      onCollapse={(value: boolean) => setCollapsed(value)}
       className="overflow-y-auto"
     >
       <Flex vertical gap={10} className="px-2">

@@ -6,47 +6,43 @@ import { WorkflowSider } from "./-components/workflow-sider";
 import { useState, useCallback, useRef } from "react";
 import WorkflowEditor from "./-components/worflow-canvas";
 import WorkflowHeader from "./-components/workflow-header";
-import { useWorkflow } from "@/api/hooks/workflow";
+import { useWorkflowQuery } from "@/api/hooks/workflow";
 import { Link } from "@tanstack/react-router";
 import { Node, Edge } from "@xyflow/react";
+import type { WorkFlow } from "@/api/types";
+import { mergeCanvasIntoWorkFlow } from "@/api/mappers/workFlowMapper";
 
-export const Route = createFileRoute("/workflows/$workflowId")({
+export const Route = createFileRoute("/workflows/$applicationName")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { workflowId } = Route.useParams();
+  const { applicationName: applicationNameParam } = Route.useParams();
+  let applicationName = applicationNameParam;
+  try {
+    applicationName = decodeURIComponent(applicationNameParam);
+  } catch {
+    /* keep raw */
+  }
   const [collapsed, setCollapsed] = useState(false);
-  const { data: workflow, isLoading, error } = useWorkflow(workflowId);
+  const { data: workFlow, isLoading, isError } =
+    useWorkflowQuery(applicationName);
 
-  // Use refs to store current nodes and edges to avoid re-renders
   const nodesRef = useRef<Node[]>([]);
   const edgesRef = useRef<Edge[]>([]);
 
-  // Handle workflow changes from the editor
   const handleWorkflowChange = useCallback((nodes: Node[], edges: Edge[]) => {
-    // Store in refs instead of state to avoid re-renders
     nodesRef.current = nodes;
     edgesRef.current = edges;
   }, []);
 
-  // Handle save action from the header
-  const handleSave = useCallback(() => {
-    // Create updated workflow with current nodes and edges from refs
-    if (workflow) {
-      const updatedWorkflow = {
-        ...workflow,
-        nodes: nodesRef.current.length > 0 ? nodesRef.current : workflow.nodes,
-        edges: edgesRef.current.length > 0 ? edgesRef.current : workflow.edges,
-      };
+  const handleSave = useCallback((): WorkFlow | null => {
+    if (workFlow == null) return null;
+    const nodes = nodesRef.current;
+    const edges = edgesRef.current;
+    return mergeCanvasIntoWorkFlow(workFlow, nodes, edges);
+  }, [workFlow]);
 
-      // Pass the updated workflow to the header component
-      return updatedWorkflow;
-    }
-    return null;
-  }, [workflow]);
-
-  // If loading, show loading state
   if (isLoading) {
     return (
       <Spin spinning={true}>
@@ -55,16 +51,15 @@ function RouteComponent() {
     );
   }
 
-  // If error or workflow doesn't exist, show error page
-  if (error || !workflow) {
+  if (isError || workFlow == null) {
     return (
       <Result
         status="404"
-        title="Workflow not found"
-        subTitle="The workflow you're looking for doesn't exist or has been deleted"
+        title="Application not found"
+        subTitle="No workflow for this application name, or the request failed."
         extra={
           <Link to="/workflows">
-            <Button type="primary">Back to Workflows</Button>
+            <Button type="primary">Back to applications</Button>
           </Link>
         }
       />
@@ -77,13 +72,14 @@ function RouteComponent() {
         <WorkflowSider collapsed={collapsed} setCollapsed={setCollapsed} />
         <Layout className="h-full">
           <WorkflowHeader
-            workflow={workflow}
+            applicationName={applicationName}
+            workFlow={workFlow}
             onSave={handleSave}
           />
           <Content className="h-full overflow-hidden">
             <WorkflowEditor
-              workflowId={workflowId}
-              workflow={workflow}
+              applicationName={applicationName}
+              workFlow={workFlow}
               onWorkflowChange={handleWorkflowChange}
             />
           </Content>

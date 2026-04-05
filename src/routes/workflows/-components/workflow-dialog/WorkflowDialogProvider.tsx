@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { WorkflowDialog } from "./index";
-import { WorkflowRequest, WorkflowResponse } from "@/api/types";
-import { useCreateWorkflow, useUpdateWorkflow } from "@/api/hooks/workflow";
+import type { ApplicationFormValues } from "@/api/types";
+import { useCreateApplication } from "@/api/hooks/workflow";
+import { useNavigate } from "@tanstack/react-router";
+import { message } from "antd";
 
 type DialogMode = "create" | "edit";
 
 interface WorkflowDialogContextType {
   openCreateDialog: () => void;
-  openEditDialog: (workflow: WorkflowResponse) => void;
+  openEditDialog: (applicationName: string) => void;
   closeDialog: () => void;
 }
 
@@ -32,49 +34,45 @@ interface WorkflowDialogProviderProps {
 export const WorkflowDialogProvider: React.FC<WorkflowDialogProviderProps> = ({
   children,
 }) => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<DialogMode>("create");
-  const [selectedWorkflow, setSelectedWorkflow] =
-    useState<WorkflowResponse | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
 
-  const createWorkflow = useCreateWorkflow();
-  const updateWorkflow = useUpdateWorkflow();
+  const createApplication = useCreateApplication();
 
   const openCreateDialog = () => {
     setMode("create");
-    setSelectedWorkflow(null);
+    setSelectedName(null);
     setIsOpen(true);
   };
 
-  const openEditDialog = (workflow: WorkflowResponse) => {
+  const openEditDialog = (applicationName: string) => {
     setMode("edit");
-    setSelectedWorkflow(workflow);
+    setSelectedName(applicationName);
     setIsOpen(true);
   };
 
   const closeDialog = () => {
     setIsOpen(false);
-
   };
 
-  const handleSubmit = async (data: WorkflowRequest) => {
+  const handleSubmit = async (data: ApplicationFormValues) => {
     try {
-
       if (mode === "create") {
-        await createWorkflow.mutateAsync(data);
-      } else if (selectedWorkflow) {
-        const updateData: WorkflowRequest = {
-          ...data,
-        };
-
-        await updateWorkflow.mutateAsync({
-          id: selectedWorkflow.id,
-          data: updateData,
+        await createApplication.mutateAsync(data.applicationName);
+        message.success("Application created");
+        closeDialog();
+        navigate({
+          to: "/workflows/$applicationName",
+          params: {
+            applicationName: data.applicationName,
+          },
         });
       }
-      closeDialog();
     } catch (error) {
-      console.error("failed to submit workflow:", error);
+      console.error("failed to submit:", error);
+      message.error("Could not create application");
     }
   };
 
@@ -92,7 +90,7 @@ export const WorkflowDialogProvider: React.FC<WorkflowDialogProviderProps> = ({
         onClose={closeDialog}
         onSubmit={handleSubmit}
         mode={mode}
-        workflow={selectedWorkflow}
+        initialApplicationName={selectedName}
       />
     </WorkflowDialogContext.Provider>
   );

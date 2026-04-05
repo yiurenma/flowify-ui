@@ -1,76 +1,69 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { workflowApi } from '../services/workflow';
-import type {
-    WorkflowRequest,
-    WorkflowResponse,
-    WorkflowListResponse,
-} from '../types';
+import { operationApi } from '../services/operation';
+import type { WorkFlow } from '../types';
 import { createQueryKey } from '../config';
 
-const WORKFLOW_KEYS = {
-    all: () => createQueryKey('workflows'),
-    list: (params?: Record<string, unknown>) => createQueryKey('workflows', params),
-    detail: (id: string) => createQueryKey('workflow', { id }),
+const KEYS = {
+  apps: () => createQueryKey('applications'),
+  appsList: (p: Record<string, unknown>) => createQueryKey('applications', p),
+  workflow: (applicationName: string) => createQueryKey('workflow', { applicationName }),
 };
 
-export const useWorkflows = () => {
-    return useQuery<WorkflowListResponse>({
-        queryKey: WORKFLOW_KEYS.all(),
-        queryFn: () => workflowApi.getAll(),
-    });
+export const useEntitySettings = (params: {
+  page?: number;
+  size?: number;
+  applicationName?: string;
+  sort?: string;
+}) => {
+  return useQuery({
+    queryKey: KEYS.appsList(params as Record<string, unknown>),
+    queryFn: () => operationApi.listEntitySettings(params),
+  });
 };
 
-export const useWorkflow = (id: string) => {
-    return useQuery<WorkflowResponse>({
-        queryKey: WORKFLOW_KEYS.detail(id),
-        queryFn: () => workflowApi.getById(id),
-    });
+export const useWorkflowQuery = (applicationName: string) => {
+  return useQuery({
+    queryKey: KEYS.workflow(applicationName),
+    queryFn: () => operationApi.getWorkflow(applicationName),
+    enabled: !!applicationName,
+  });
 };
 
-export const useCreateWorkflow = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (data: WorkflowRequest) => workflowApi.create(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: WORKFLOW_KEYS.all(),
-            });
-        },
-    });
+export const useCreateApplication = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (applicationName: string) =>
+      operationApi.createEmptyApplication(applicationName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: KEYS.apps() });
+    },
+  });
 };
 
-export const useUpdateWorkflow = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({
-            id,
-            data,
-        }: {
-            id: string;
-            data: WorkflowRequest;
-        }) => workflowApi.update(id, data),
-        onSuccess: (_, { id }) => {
-            queryClient.invalidateQueries({
-                queryKey: WORKFLOW_KEYS.detail(id),
-            });
-            queryClient.invalidateQueries({
-                queryKey: WORKFLOW_KEYS.all(),
-            });
-        },
-    });
+export const useSaveWorkflow = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      applicationName,
+      workFlow,
+    }: {
+      applicationName: string;
+      workFlow: WorkFlow;
+    }) => operationApi.saveWorkflow(applicationName, workFlow),
+    onSuccess: (_, { applicationName }) => {
+      queryClient.invalidateQueries({ queryKey: KEYS.workflow(applicationName) });
+      queryClient.invalidateQueries({ queryKey: KEYS.apps() });
+    },
+  });
 };
 
-export const useDeleteWorkflow = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (id: string) => workflowApi.delete(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: WORKFLOW_KEYS.all(),
-            });
-        },
-    });
-}; 
+export const useDeleteApplication = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (applicationName: string) =>
+      operationApi.deleteWorkflow(applicationName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: KEYS.apps() });
+    },
+  });
+};

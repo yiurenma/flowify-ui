@@ -14,7 +14,7 @@ import {
 } from "@xyflow/react";
 import { Plugin } from "@/types/plugins";
 import { FunctionPlugin } from "./convas/plugins/function-plugin";
-import { WorkflowResponse } from "@/api/types";
+import type { WorkFlow } from "@/api/types";
 import WorkflowDrawer from "../workflow-drawer";
 import { StartPlugin } from "./convas/plugins/begin-plugin";
 import { IfElsePlugin } from "./convas/plugins/iflese-plugin";
@@ -54,8 +54,8 @@ const defaultEdgeOptions = {
 };
 
 export type WorkflowEditorProps = {
-  workflowId: string;
-  workflow?: WorkflowResponse;
+  applicationName: string;
+  workFlow?: WorkFlow | null;
   onWorkflowChange?: (nodes: Node[], edges: Edge[]) => void;
 };
 
@@ -64,12 +64,13 @@ export type WorkflowEditorProps = {
  * A visual editor for creating and editing workflows using React Flow
  */
 const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
-  workflow,
+  applicationName,
+  workFlow,
   onWorkflowChange,
 }) => {
   // Initialize workflow state
   const { nodes, edges, setNodes, setEdges, onNodesChange, onEdgesChange } =
-    useWorkflowState({ workflow, onWorkflowChange });
+    useWorkflowState({ applicationName, workFlow, onWorkflowChange });
 
   // Initialize connection handlers
   const { onConnect } = useWorkflowConnections({ setEdges });
